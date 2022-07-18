@@ -22,14 +22,15 @@ int main()
         
         {
             printf("device on\n");
-            sleep(2);
+            sleep(1);
+            
             now = time(NULL);
             tm_struct = localtime(&now);
 
             min = tm_struct->tm_min;
             printf("%d,%d", min, night_time);
 
-            if (min == night_time)
+            if (min >= night_time)
 
             {
                 f_ADC = fopen("/dev/colibri-ain0", "r");
@@ -37,8 +38,17 @@ int main()
                 printf("Digital value=%d\n", ADC_value);
                 fclose(f_ADC);
                 
-                if (sleep(5),ADC_value < 50)
+                if (ADC_value < 50)
                 {
+                    sleep(6);
+                   
+                f_ADC = fopen("/dev/colibri-ain0", "r");
+                fscanf(f_ADC, "%d", &ADC_value);
+                printf("Digital value=%d\n", ADC_value);
+                fclose(f_ADC);
+                    if (ADC_value < 50)
+                    {
+                    
                     f_wakeup = fopen("/sys/class/rtc/rtc0/wakealarm", "w");
                     fprintf(f_wakeup, "+30");
                     printf("Device is On\n");
@@ -48,13 +58,12 @@ int main()
                     printf("Going into suspend mode\n");
                     fprintf(f_standby, "standby");
                     fclose(f_standby);
-
-                    sleep(2);
+                    }
+                    
                 }
             }
         }
-
-        return 0;
     
     }
+     return 0;
 }
